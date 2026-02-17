@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from services.resume_parser import extract_text
 from services.resume_analyzer import analyze_resume
 from services.chat_engine import chat_with_resume
+from services.score_calculator import generate_score_breakdown
 
 
 
@@ -42,32 +43,35 @@ async def analyze():
     if not stored_resume:
         return {"error": "Upload resume first."}
 
+    resume_text = stored_resume["text"]
+    
     # Step 1: Analyze Resume
-    analysis = analyze_resume(stored_resume["text"])
+    analysis = analyze_resume(resume_text)
 
     skills = analysis.get("skills", [])
 
-    # Step 2: Job Matching
+    # Step 2: Generate Intelligent Score Breakdown
+    score_breakdown = generate_score_breakdown(resume_text, analysis)
+    scores = score_breakdown["scores"]
+    overall_score = score_breakdown["overall_score"]
+    recommendations = score_breakdown["recommendations"]
+
+    # Step 3: Job Matching
     job_results = match_jobs(skills)
 
-    # Step 3: Score Breakdown
-    scores = {
-        "technical": min(len(skills) * 7, 100),
-        "experience": 70,
-        "education": 75,
-        "projects": 80,
-        "market_fit": min(len(job_results) * 5, 100)
-    }
-
-    overall_score = int(sum(scores.values()) / len(scores))
-
-    # Final structured response
+    # Final structured response with real data
     final_response = {
-        "summary": analysis.get("experience", ""),
+        "summary": analysis.get("summary", analysis.get("experience", "Resume analyzed")),
+        "education": analysis.get("education", "Not specified"),
+        "experience": analysis.get("experience", "Not specified"),
         "skills": skills,
         "scores": scores,
         "overall_score": overall_score,
-        "job_matches": job_results
+        "recommendations": recommendations,
+        "job_matches": job_results,
+        "certifications": analysis.get("certifications", []),
+        "projects": analysis.get("projects", ""),
+        "job_roles": analysis.get("job_roles", [])
     }
 
     stored_analysis = final_response

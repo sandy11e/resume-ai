@@ -3,10 +3,18 @@ from sklearn.metrics.pairwise import cosine_similarity
 from services.job_database import jobs
 import numpy as np
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+# Lazy load model - only load when first needed
+_model = None
+
+def _get_model():
+    global _model
+    if _model is None:
+        _model = SentenceTransformer("all-MiniLM-L6-v2")
+    return _model
 
 def semantic_job_match(resume_summary: str):
 
+    model = _get_model()
     resume_embedding = model.encode([resume_summary])
 
     results = []

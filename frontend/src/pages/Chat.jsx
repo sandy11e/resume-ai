@@ -409,7 +409,7 @@ function Chat() {
 
         {/* ── TOPBAR ── */}
         <header className="chat-topbar">
-          <button className="chat-back-btn" onClick={() => navigate("/")}>
+          <button className="chat-back-btn" onClick={() => navigate("/app")}>
             <span className="back-arrow">←</span>
             Dashboard
           </button>

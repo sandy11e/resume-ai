@@ -202,7 +202,7 @@ const CSS = `
   .analysis-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
-    grid-template-rows:auto auto auto;
+    grid-template-rows:auto auto auto auto;
     gap:24px;
   }
   @media(max-width:900px){ .analysis-grid{grid-template-columns:1fr;} }
@@ -352,6 +352,36 @@ const CSS = `
   .chip-warm{ background:rgba(212,197,169,.3);color:var(--dusk);border:1px solid rgba(212,197,169,.5); }
   .chip-ember{ background:rgba(232,133,90,.12);color:#b5501f;border:1px solid rgba(232,133,90,.2); }
 
+  /* ── INFO CARD (Education/Experience) ── */
+  .info-card{
+    grid-column:1;grid-row:3 / span 1;
+    animation:cardReveal .7s .7s ease both;
+  }
+  .info-section{
+    margin-bottom:18px;
+  }
+  .info-section:last-child{ margin-bottom:0; }
+  .info-label{
+    font-size:.72rem;font-weight:500;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--mist);margin-bottom:8px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .info-label::before{
+    content:'';width:18px;height:2px;
+    background:var(--rust);border-radius:99px;
+  }
+  .info-text{
+    font-size:.82rem;line-height:1.5;color:var(--ink);
+  }
+  .info-badges{
+    display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;
+  }
+  .info-badge{
+    padding:5px 10px;border-radius:8px;
+    background:rgba(196,98,45,.08);border:1px solid rgba(196,98,45,.15);
+    font-size:.7rem;font-weight:500;color:var(--rust);
+  }
+
   /* ── JOBS CARD ── */
   .jobs-card{
     grid-column:2;grid-row:2 / span 2;
@@ -441,6 +471,7 @@ const CSS = `
   }
 `;
 
+
 const SUB_SCORES = [
   { label:"ATS Score",  val:91 },
   { label:"Relevance",  val:84 },
@@ -456,9 +487,75 @@ const TICKER_ITEMS = [
 /* ─────────────────────────────────────────────
    COMPONENT
 ───────────────────────────────────────────── */
+/* Helper: safely render values that might be objects */
+const safeRender = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object") {
+    if (Array.isArray(value)) return value.join(", ");
+    return Object.values(value).join(", ");
+  }
+  return String(value);
+};
+
 function Main() {
   const ctx = useContext(ResumeContext);
   const analysis = ctx?.analysis ?? null;
+
+  // Generate dynamic sub-scores from analysis data
+  const generateSubScores = () => {
+    if (!analysis || !analysis.scores) return SUB_SCORES;
+    
+    const scores = analysis.scores;
+    return [
+      { label: "ATS Score", val: Math.round(scores.ats || 0) },
+      { label: "Relevance", val: Math.round(scores.relevance || 0) },
+      { label: "Keywords", val: Math.round(scores.keywords || 0) },
+      { label: "Formatting", val: Math.round(scores.formatting || 0) },
+    ];
+  };
+
+  // Generate dynamic ticker items based on analysis
+  const generateTickerItems = () => {
+    if (!analysis) return TICKER_ITEMS;
+    
+    const items = [];
+    
+    // Add analysis components
+    if (analysis.skills && analysis.skills.length > 0) {
+      items.push(`${analysis.skills.length} Skills Found`);
+    }
+    if (analysis.job_matches && analysis.job_matches.length > 0) {
+      items.push(`${analysis.job_matches.length} Job Matches`);
+    }
+    if (analysis.certifications && analysis.certifications.length > 0) {
+      items.push(`${analysis.certifications.length} Certifications`);
+    }
+    
+    // Add recommendations if available
+    if (analysis.recommendations && analysis.recommendations.length > 0) {
+      items.push("Personalized Insights");
+    }
+    
+    // Add score indicators
+    if (analysis.overall_score >= 85) {
+      items.push("Excellent Resume");
+    } else if (analysis.overall_score >= 70) {
+      items.push("Good Resume");
+    } else {
+      items.push("Resume Optimization Tips");
+    }
+    
+    // Add base items if list is empty or short
+    if (items.length < 3) {
+      items.push(...["Resume Analysis", "AI-Powered", "Career Insights"]);
+    }
+    
+    return items.slice(0, 6); // Limit to 6 items
+  };
+
+  const currentSubScores = generateSubScores();
+  const currentTickerItems = generateTickerItems();
 
   return (
     <>
@@ -534,7 +631,7 @@ function Main() {
                 </div>
 
                 <div className="sub-scores">
-                  {SUB_SCORES.map(({ label, val }, i) => (
+                  {currentSubScores.map(({ label, val }, i) => (
                     <div className="sub-score-row" key={label}>
                       <span className="sub-score-label">{label}</span>
                       <div className="sub-score-track">
@@ -564,6 +661,47 @@ function Main() {
                 <SkillTags skills={analysis.skills} />
               </div>
 
+              {/* ── INFO CARD (Education & Experience) ── */}
+              <div className="glass-card info-card">
+                <div className="glass-card-shine" />
+                
+                {analysis.education && analysis.education !== "Not specified" && (
+                  <div className="info-section">
+                    <div className="info-label">Education</div>
+                    <div className="info-text">{safeRender(analysis.education)}</div>
+                  </div>
+                )}
+
+                {analysis.experience && analysis.experience !== "Not specified" && (
+                  <div className="info-section">
+                    <div className="info-label">Experience</div>
+                    <div className="info-text">{safeRender(analysis.experience)}</div>
+                  </div>
+                )}
+
+                {analysis.certifications && analysis.certifications.length > 0 && (
+                  <div className="info-section">
+                    <div className="info-label">Certifications</div>
+                    <div className="info-badges">
+                      {analysis.certifications.map((cert, idx) => (
+                        <div key={idx} className="info-badge">{safeRender(cert)}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {analysis.recommendations && analysis.recommendations.length > 0 && (
+                  <div className="info-section">
+                    <div className="info-label">Recommendations</div>
+                    <div style={{ fontSize: '.8rem', color: 'var(--mist)', lineHeight: 1.6 }}>
+                      {analysis.recommendations.slice(0, 2).map((rec, idx) => (
+                        <div key={idx}>• {safeRender(rec)}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* ── JOBS CARD ── */}
               <div className="glass-card jobs-card">
                 <JobCards jobs={analysis.job_matches} />
@@ -588,7 +726,7 @@ function Main() {
         {/* Ticker bar */}
         <div className="dash-ticker">
           <div className="dash-ticker-track">
-            {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+            {[...currentTickerItems, ...currentTickerItems].map((item, i) => (
               <span key={i} className="dash-ticker-item">
                 {item}
                 <span className="ticker-sep" />
@@ -600,5 +738,4 @@ function Main() {
     </>
   );
 }
-
 export default Main;
