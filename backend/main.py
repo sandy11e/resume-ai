@@ -20,7 +20,9 @@ app.add_middleware(
 )
 stored_resume = {}
 stored_analysis = {}
-
+@app.get("/")
+def root():
+    return {"message": "API is running"}
 @app.post("/upload")
 async def upload_resume(file: UploadFile = File(...)):
 
