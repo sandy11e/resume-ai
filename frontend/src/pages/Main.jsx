@@ -469,6 +469,34 @@ const CSS = `
   .floating-chat-wrap{
     position:fixed;bottom:60px;right:32px;z-index:60;
   }
+  /* ── RESPONSIVE ADJUSTMENTS (desktop + mobile) ── */
+  @media (max-width: 900px) {
+    .dash-topbar { padding:12px 18px; }
+    .dash-content { padding:28px 18px 100px; max-width:980px; }
+    .upload-wrapper { padding:28px 20px; }
+    .glass-card { padding:20px; }
+    .score-big { font-size:3.2rem; }
+    .score-ring-wrap { width:110px; height:110px; right:-8px; top:-8px; }
+    .floating-chat-wrap { right:18px; bottom:36px; }
+    .dash-ticker { padding:8px 0; }
+  }
+
+  @media (max-width: 520px) {
+    .dash-topbar{ padding:10px 12px; }
+    .topbar-title{ display:none; }
+    .dash-content{ padding:18px 12px 88px; }
+    .upload-wrapper{ padding:20px 14px; border-radius:18px; }
+    .analysis-grid{ grid-template-columns:1fr; gap:18px; }
+    .glass-card{ padding:16px; border-radius:16px; }
+    .score-big{ font-size:2.4rem !important; }
+    .score-denom{ font-size:1.05rem; }
+    .score-ring-wrap{ display:none; }
+    .skills-cloud{ gap:7px; }
+    .skill-chip{ padding:6px 10px; font-size:.72rem; }
+    .floating-chat-wrap{ right:12px; bottom:22px; }
+    .fc-tooltip{ display:none; } /* hide large tooltip on tiny screens */
+    .dash-ticker{ position:static; border-top:none; background:transparent; padding:8px 0; }
+  }
 `;
 
 

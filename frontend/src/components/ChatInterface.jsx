@@ -467,6 +467,47 @@ const CSS = `
     letter-spacing:.02em;
   }
   .ci-clear-btn:hover { color:var(--rust); background:rgba(196,98,45,.08); }
+  /* Responsive - Chatbot mobile layout */
+  @media (max-width: 720px) {
+    .ci-wrap { height: 100vh; }
+    /* leave room for fixed input bar (uses safe-area where available) */
+    .ci-messages { padding: 12px 12px calc(84px + env(safe-area-inset-bottom)); gap:8px; }
+    .ci-row { max-width: 100%; gap:8px; }
+    .ci-bubble { font-size:.95rem; padding:10px 12px; border-radius:14px; }
+    .ci-bubble-user { border-radius:14px 6px 14px 14px; }
+    .ci-avatar { width:28px; height:28px; font-size:.6rem; margin-top:0; }
+    .ci-sender-label { font-size:.62rem; }
+    .ci-input-bar {
+      position:fixed; left:0; right:0; bottom:0;
+      padding:10px calc(12px + env(safe-area-inset-left)) calc(12px + env(safe-area-inset-bottom));
+      box-shadow:0 -6px 24px rgba(44,36,32,.08);
+      background:rgba(245,240,232,.96);
+      backdrop-filter:blur(10px);
+      z-index:60;
+    }
+    .ci-input-row { padding:8px 10px; border-radius:14px; }
+    .ci-input { font-size:1rem; padding:8px 0; }
+    .ci-send { width:48px; height:48px; font-size:1.05rem; }
+    /* ensure FAB sits above input bar */
+    .ci-scroll-fab { right:12px; bottom: calc(100px + env(safe-area-inset-bottom)); }
+  }
+
+  @media (max-width: 420px) {
+    .ci-empty-sub { max-width:220px; font-size:.76rem; }
+    .ci-sender-label { display:none; }
+    .ci-avatar { display:none; }
+    .ci-bubble { font-size:.95rem; padding:10px; }
+    .ci-input-row { padding:8px 10px; }
+    .ci-input { font-size:.95rem; }
+    .ci-send { width:46px; height:46px; }
+    .ci-char-count { display:none; }
+    /* hide FAB on narrowest screens to avoid overlap */
+    .ci-scroll-fab { display:none; }
+    .ci-messages::-webkit-scrollbar { display:none; }
+    /* reduce empty orbit size */
+    .ci-empty-orbit { width:68px; height:68px; }
+    .ci-empty-center { font-size:1.45rem; }
+  }
 `;
 
 /* ─── helpers ─── */
